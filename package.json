@@ -1,0 +1,36 @@
+{
+  "name": "cycle-local-storage",
+  "version": "0.1.0",
+  "description": "Cycle driver for locally",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/browserify -t babelify test/ | ./node_modules/.bin/testling",
+    "build": "./node_modules/.bin/babel src -d lib/",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tylors/cycle-local-storage.git"
+  },
+  "keywords": [
+    "Cycle",
+    "Driver",
+    "LocalStorage"
+  ],
+  "author": "Tylor Steinberger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tylors/cycle-local-storage/issues"
+  },
+  "homepage": "https://github.com/tylors/cycle-local-storage#readme",
+  "devDependencies": {
+    "@cycle/core": "^3.1.0",
+    "babelify": "^6.3.0",
+    "browserify": "^11.2.0",
+    "tape": "^4.2.0",
+    "testling": "^1.7.1"
+  }
+}
