@@ -1,25 +1,36 @@
 import {Rx} from '@cycle/core';
 
+const handleStorageObjectAsObject = storageObject => {
+  // Avoid querying object more than once.
+  const storageObjectKeys = Object.keys(storageObject);
+
+  if (storageObjectKeys.length <=0 ) return localStorage;
+
+  storageObjectKeys
+    .forEach(key => localStorage.setItem(key, storageObject[key]) );
+
+  return localStorage;
+}
+
+const handleStorageObjectAsArray = storageObject => {
+  if (storageObject.length <= 0) return localStorage;
+  storageObject.map(storeSetter);
+
+  return localStorage;
+}
+
 const storeSetter = storageObject => {
-
   try {
-
     if (storageObject === undefined) return localStorage;
 
     if (typeof storageObject === 'object') {
-      if (Object.keys(storageObject).length <=0 ) return localStorage;
-
-      Object.keys(storageObject)
-        .forEach(key => localStorage.setItem(key, storageObject[key]) );
+      return handleStorageObjectAsObject(storageObject);
     }
 
     if (Array.isArray(storageObject)) {
-      if (storageObject.length <= 0) return localStorage;
-      storageObject.map(storeSetter);
+      return handleStorageObjectAsArray(storageObject);
     }
-
   }
-
   catch (e) {
     throw new Error("Invalid input to localStorage Driver; received: " + typeof storageObject);
   } finally {
