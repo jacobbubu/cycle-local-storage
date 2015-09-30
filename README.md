@@ -15,6 +15,10 @@ const main = ({Storage}) => {
     .get('key1')
     .map(value => console.log(value)) // value1
 
+  Storage
+    .get(['key1', 'key2'])
+    .map(value => console.log(value)) // ['value1', 'value2']
+
   ...
 
   let storage$ = Rx.Observable.just({
