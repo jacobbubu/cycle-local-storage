@@ -1,6 +1,9 @@
 # cycle-local-storage
 Simple local storage driver for cycle.js
 
+# Install
+`npm install cycle-local-storage`
+
 # Example Usage
 ```javascript
 import localStorageDriver from 'cycle-local-storage';
