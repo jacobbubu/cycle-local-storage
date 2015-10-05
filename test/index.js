@@ -43,7 +43,7 @@ test('localStorageDriver', t => {
 
   impossibleValues.forEach((value, key) => t.throws(localStorageDriver(value), Error, `should NOT accept ${key} as input`));
 
-  t.ok(localStorageDriver(Rx.Observable.just(createData())) instanceof Rx.BehaviorSubject, 'should return a Rx.BehaviorSubject');
+  t.ok(localStorageDriver(Rx.Observable.just(createData())) instanceof Rx.Observable, 'should return a Rx.Observable');
 
   localStorageDriver(Rx.Observable.just(createData()))
     .get('key1')
@@ -55,7 +55,14 @@ test('localStorageDriver', t => {
     .get(['key1', 'key2', 'key3', 'key4'])
     .subscribe(value => {
       t.ok(Array.isArray(value), `giving .get() an array of keys should return an array of values`);
-    })
+    });
+
+  localStorageDriver(Rx.Observable.just(createData()))
+    .get('key5')
+    .defaultIfEmpty('value5')
+    .subscribe(value => {
+      t.equal(value, 'value5', 'should be able to use defulatIfEmpty(value)')
+    });
 
   t.end();
 });

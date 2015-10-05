@@ -38,33 +38,43 @@ const storeSetter = storageObject => {
   }
 }
 
-const makeStorageSubject = () => {
-  const storageSubject = new Rx.BehaviorSubject(localStorage);
-
-  storageSubject.get = keys => {
-    if (Array.isArray(keys)) {
-      return storageSubject.map(store => {
-        return keys.map(key => store.getItem(key) );
-      });
-    }
-    return storageSubject.map( store => store.getItem(keys) )
-  };
-
-  storageSubject.getItem = storageSubject.get; // in case developer uses the localStorage api method name
-
-  return storageSubject;
+function getKey(key) {
+  return localStorage.getItem(key)
 }
 
-const localStorageDriver = storage$ => {
+const makeStorage$ = () => {
+  const storage$ = Rx.Observable.just(localStorage);
 
-  const storageSubject = makeStorageSubject();
+  storage$.get = keys => {
 
-  storage$
+    if (Array.isArray(keys)) {
+      return Rx.Observable.create(observer => {
+        return keys.map(key => getKey(key));
+      });
+    }
+
+    return Rx.Observable.just(getKey(keys))
+      .flatMap(value => {
+        if (value === null) return Rx.Observable.empty()
+        return Rx.Observable.just(value)
+      });
+  };
+
+  storage$.getItem = storage$.get; // in case developer uses the localStorage api method name
+
+  return storage$;
+}
+
+const localStorageDriver = keys$ => {
+
+  const storage$ = makeStorage$();
+
+  keys$
     .distinctUntilChanged()
     .map(storeSetter)
-    .subscribe(store => storageSubject.onNext(store));
+    .subscribe();
 
-  return storageSubject;
+  return storage$;
 }
 
 
