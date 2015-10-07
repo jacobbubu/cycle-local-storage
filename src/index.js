@@ -21,60 +21,54 @@ const handleStorageObjectAsArray = storageObject => {
 
 const storeSetter = storageObject => {
   try {
-    if (storageObject === undefined) return localStorage
+    if (storageObject === undefined) return localStorage;
 
     if (typeof storageObject === 'object') {
-      return handleStorageObjectAsObject(storageObject)
+      return handleStorageObjectAsObject(storageObject);
     }
 
     if (Array.isArray(storageObject)) {
-      return handleStorageObjectAsArray(storageObject)
+      return handleStorageObjectAsArray(storageObject);
     }
   }
   catch (e) {
-    throw new Error("Invalid input to localStorage Driver; received: " + typeof storageObject)
+    throw new Error("Invalid input to localStorage Driver; received: " + typeof storageObject);
   } finally {
-    return localStorage
+    return localStorage;
   }
 }
 
-function getKey(key) {
-  return localStorage.getItem(key)
-}
+const makeStorageSubject = () => {
+  const storageSubject = new Rx.BehaviorSubject(localStorage);
 
-const makeStorage$ = () => {
-  const storage$ = new Rx.Subject()
-
-  storage$.get = keys => {
-
+  storageSubject.get = keys => {
     if (Array.isArray(keys)) {
-      storage$.map(ls => {
-        return keys.map(key => getKey(key))
-      })
+      return storageSubject.map(store => {
+        return keys.map(key => store.getItem(key) );
+      });
     }
+    return storageSubject.flatMap(store => {
+      let value = store.getItem(keys)
+      if (value === null) return Rx.Observable.empty()
+      return Rx.Observable.just(value)
+    })
+  };
 
-    return storage$.map(() => getKey(keys))
-      .flatMap(value => {
-        if (value === null) return Rx.Observable.empty()
-        return Rx.Observable.just(value)
-      })
-  }
+  storageSubject.getItem = storageSubject.get; // in case developer uses the localStorage api method name
 
-  storage$.getItem = storage$.get; // in case developer uses the localStorage api method name
-
-  return storage$;
+  return storageSubject;
 }
 
-const localStorageDriver = keys$ => {
+const localStorageDriver = storage$ => {
 
-  const storage$ = makeStorage$()
+  const storageSubject = makeStorageSubject();
 
-  keys$
+  storage$
     .distinctUntilChanged()
     .map(storeSetter)
-    .subscribe(ls => storage$.onNext(ls))
+    .subscribe(store => storageSubject.onNext(store));
 
-  return storage$
+  return storageSubject;
 }
 
 
