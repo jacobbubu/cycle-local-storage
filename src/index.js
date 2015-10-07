@@ -21,20 +21,20 @@ const handleStorageObjectAsArray = storageObject => {
 
 const storeSetter = storageObject => {
   try {
-    if (storageObject === undefined) return localStorage;
+    if (storageObject === undefined) return localStorage
 
     if (typeof storageObject === 'object') {
-      return handleStorageObjectAsObject(storageObject);
+      return handleStorageObjectAsObject(storageObject)
     }
 
     if (Array.isArray(storageObject)) {
-      return handleStorageObjectAsArray(storageObject);
+      return handleStorageObjectAsArray(storageObject)
     }
   }
   catch (e) {
-    throw new Error("Invalid input to localStorage Driver; received: " + typeof storageObject);
+    throw new Error("Invalid input to localStorage Driver; received: " + typeof storageObject)
   } finally {
-    return localStorage;
+    return localStorage
   }
 }
 
@@ -43,22 +43,22 @@ function getKey(key) {
 }
 
 const makeStorage$ = () => {
-  const storage$ = Rx.Observable.just(localStorage);
+  const storage$ = new Rx.Subject()
 
   storage$.get = keys => {
 
     if (Array.isArray(keys)) {
-      return Rx.Observable.create(observer => {
-        return keys.map(key => getKey(key));
-      });
+      storage$.map(ls => {
+        return keys.map(key => getKey(key))
+      })
     }
 
-    return Rx.Observable.just(getKey(keys))
+    return storage$.map(() => getKey(keys))
       .flatMap(value => {
         if (value === null) return Rx.Observable.empty()
         return Rx.Observable.just(value)
-      });
-  };
+      })
+  }
 
   storage$.getItem = storage$.get; // in case developer uses the localStorage api method name
 
@@ -67,14 +67,14 @@ const makeStorage$ = () => {
 
 const localStorageDriver = keys$ => {
 
-  const storage$ = makeStorage$();
+  const storage$ = makeStorage$()
 
   keys$
     .distinctUntilChanged()
     .map(storeSetter)
-    .subscribe();
+    .subscribe(ls => storage$.onNext(ls))
 
-  return storage$;
+  return storage$
 }
 
 

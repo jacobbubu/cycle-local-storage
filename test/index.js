@@ -57,12 +57,26 @@ test('localStorageDriver', t => {
       t.ok(Array.isArray(value), `giving .get() an array of keys should return an array of values`);
     });
 
-  localStorageDriver(Rx.Observable.just(createData()))
+  let data$ = new Rx.BehaviorSubject(createData());
+  let storage$ = localStorageDriver(data$);
+  storage$
     .get('key5')
-    .defaultIfEmpty('value5')
+    .take(0)
+    .defaultIfEmpty('Sorry')
     .subscribe(value => {
-      t.equal(value, 'value5', 'should be able to use defulatIfEmpty(value)')
+      t.equal(value, 'Sorry', 'should be able to use defualtIfEmpty()')
+    })
+
+  storage$
+    .get('key5')
+    .defaultIfEmpty('Sorry')
+    .take(2)
+    .subscribe(value => {
+      t.equal(value, 'value5', 'should receive updates to values set')
     });
 
-  t.end();
+  data$.onNext({"key4": "newValue4"});
+  data$.onNext({"key5": "value5"});
+
+  setTimeout(() => t.end(), 1000);
 });
