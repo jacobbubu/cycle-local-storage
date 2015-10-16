@@ -1,6 +1,6 @@
 {
   "name": "cycle-local-storage",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Cycle driver for locally",
   "main": "lib/index.js",
   "directories": {
