@@ -35,6 +35,6 @@
     "testling": "^1.7.1"
   },
   "peerDependencies": {
-    "@cycle/core": "^3.1.0"
+    "@cycle/core": "4.x.x"
   }
 }
