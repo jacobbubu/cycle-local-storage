@@ -1,4 +1,4 @@
-import {Rx} from '@cycle/core';
+import Rx from 'rx';
 import {localStorageDriver} from '../src';
 import test from 'tape';
 
